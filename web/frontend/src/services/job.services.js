@@ -31,3 +31,19 @@ export const createJob = async (formData) => {
 
   return response.data;
 };
+
+export const updateJob = async (id, jobData) => {
+  const token = localStorage.getItem("token");
+
+  const response = await axios.put(
+    `${API}/update/${id}`,
+    jobData,
+    {
+      headers: {
+        Authorization: token
+      }
+    }
+  );
+
+  return response.data;
+};

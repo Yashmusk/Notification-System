@@ -181,6 +181,7 @@ const stats = getStats(jobs);
            <JobCard
   key={job._id}
   job={job}
+   fetchJobs={fetchJobs}
 />
           ))
         )

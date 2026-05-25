@@ -1,5 +1,47 @@
-const JobCard = ({ job }) => {
+import { useState } from "react";
+import {
+  updateJob
+} from "../services/job.services";
 
+const JobCard = ({ job, fetchJobs }) => {
+  const [showRoundForm, setShowRoundForm] = useState(false);
+
+const [newRound, setNewRound] = useState({
+  title: "",
+  status: "Upcoming",
+  scheduledAt: "",
+  feedback: ""
+});
+const handleAddRound = () => {
+  setShowRoundForm(true);
+};
+const saveRound = async () => {
+  try {
+    const updatedRounds = [
+      ...(job.rounds || []),
+      newRound
+    ];
+
+    await updateJob(job._id, {
+      ...job,
+      rounds: updatedRounds
+    });
+
+    setShowRoundForm(false);
+
+    setNewRound({
+      title: "",
+      status: "Upcoming",
+      scheduledAt: "",
+      feedback: ""
+    });
+
+    fetchJobs();
+
+  } catch (error) {
+    console.log(error);
+  }
+};
   const getRoundIcon = (status) => {
 
     if (status === "Completed") {
@@ -191,7 +233,56 @@ const JobCard = ({ job }) => {
               )
             }
 
+
           </div>
+                      {showRoundForm && (
+  <div
+    style={{
+      border: "1px solid #ddd",
+      padding: "16px",
+      borderRadius: "12px",
+      marginTop: "16px"
+    }}
+  >
+    <input
+      type="text"
+      placeholder="Round title"
+      value={newRound.title}
+      onChange={(e) =>
+        setNewRound({
+          ...newRound,
+          title: e.target.value
+        })
+      }
+    />
+
+    <input
+      type="datetime-local"
+      value={newRound.scheduledAt}
+      onChange={(e) =>
+        setNewRound({
+          ...newRound,
+          scheduledAt: e.target.value
+        })
+      }
+    />
+
+    <textarea
+      placeholder="Feedback"
+      value={newRound.feedback}
+      onChange={(e) =>
+        setNewRound({
+          ...newRound,
+          feedback: e.target.value
+        })
+      }
+    />
+
+    <button onClick={saveRound}>
+      Save Round
+    </button>
+  </div>
+)}
 
           {/* RIGHT SIDE */}
 
@@ -327,7 +418,20 @@ const JobCard = ({ job }) => {
           gap: "10px"
         }}
       >
-
+        <button
+  onClick={handleAddRound}
+  style={{
+    background: "#10b981",
+    color: "white",
+    border: "none",
+    padding: "10px 16px",
+    borderRadius: "8px",
+    cursor: "pointer",
+    marginRight: "10px"
+  }}
+>
+  + Add Round
+</button>
         <button
           style={{
             padding: "10px 16px",
