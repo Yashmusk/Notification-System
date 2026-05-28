@@ -31,6 +31,7 @@ exports.signup=async(req,res)=>{
 };
 
 exports.login = async (req, res) => {
+  console.log("LOGIN API HIT");
   try {
     const { email, password } = req.body;
 

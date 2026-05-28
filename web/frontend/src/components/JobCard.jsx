@@ -2,10 +2,11 @@ import { useState } from "react";
 import {
   updateJob
 } from "../services/job.services";
-
+import "./jobcard.css";
 const JobCard = ({ job, fetchJobs }) => {
   const [showRoundForm, setShowRoundForm] = useState(false);
-
+const [editingRoundIndex, setEditingRoundIndex] =
+  useState(null);
 const [newRound, setNewRound] = useState({
   title: "",
   status: "Upcoming",
@@ -17,10 +18,13 @@ const handleAddRound = () => {
 };
 const saveRound = async () => {
   try {
-    const updatedRounds = [
-      ...(job.rounds || []),
-      newRound
-    ];
+    let updatedRounds = [...job.rounds];
+
+    if (editingRoundIndex !== null) {
+      updatedRounds[editingRoundIndex] = newRound;
+    } else {
+      updatedRounds.push(newRound);
+    }
 
     await updateJob(job._id, {
       ...job,
@@ -28,6 +32,8 @@ const saveRound = async () => {
     });
 
     setShowRoundForm(false);
+
+    setEditingRoundIndex(null);
 
     setNewRound({
       title: "",
@@ -41,6 +47,51 @@ const saveRound = async () => {
   } catch (error) {
     console.log(error);
   }
+};
+const addToCalendar = (round) => {
+
+  if (!round.scheduledAt) {
+    alert("No interview date found");
+    return;
+  }
+
+  const start =
+    new Date(round.scheduledAt);
+
+  const end =
+    new Date(
+      start.getTime() +
+      60 * 60 * 1000
+    );
+
+  const formatDate = (date) =>
+    date
+      .toISOString()
+      .replace(/-|:|\.\d+/g, "");
+
+  const url =
+    `https://calendar.google.com/calendar/render?action=TEMPLATE` +
+    `&text=${encodeURIComponent(
+      `${job.company} - ${round.title}`
+    )}` +
+    `&dates=${formatDate(start)}/${formatDate(end)}` +
+    `&details=${encodeURIComponent(
+      round.feedback || job.notes || ""
+    )}`;
+
+  window.open(url, "_blank");
+};
+const handleEditRound = (index) => {
+  setEditingRoundIndex(index);
+
+  setNewRound({
+    title: job.rounds[index].title || "",
+    status: job.rounds[index].status || "Upcoming",
+    scheduledAt: job.rounds[index].scheduledAt || "",
+    feedback: job.rounds[index].feedback || ""
+  });
+
+  setShowRoundForm(true);
 };
   const getRoundIcon = (status) => {
 
@@ -70,7 +121,7 @@ const saveRound = async () => {
 
   return (
 
-    <div
+    <div className="job-card"
       style={{
         backgroundColor: "#ffffff",
         borderRadius: "16px",
@@ -214,7 +265,7 @@ const saveRound = async () => {
                 ? "✓"
                 : index + 1
               }
-
+              
             </div>
 
             {/* CONNECTING LINE */}
@@ -235,54 +286,7 @@ const saveRound = async () => {
 
 
           </div>
-                      {showRoundForm && (
-  <div
-    style={{
-      border: "1px solid #ddd",
-      padding: "16px",
-      borderRadius: "12px",
-      marginTop: "16px"
-    }}
-  >
-    <input
-      type="text"
-      placeholder="Round title"
-      value={newRound.title}
-      onChange={(e) =>
-        setNewRound({
-          ...newRound,
-          title: e.target.value
-        })
-      }
-    />
 
-    <input
-      type="datetime-local"
-      value={newRound.scheduledAt}
-      onChange={(e) =>
-        setNewRound({
-          ...newRound,
-          scheduledAt: e.target.value
-        })
-      }
-    />
-
-    <textarea
-      placeholder="Feedback"
-      value={newRound.feedback}
-      onChange={(e) =>
-        setNewRound({
-          ...newRound,
-          feedback: e.target.value
-        })
-      }
-    />
-
-    <button onClick={saveRound}>
-      Save Round
-    </button>
-  </div>
-)}
 
           {/* RIGHT SIDE */}
 
@@ -300,38 +304,60 @@ const saveRound = async () => {
   {/* TOP ROW */}
 
   <div
+  style={{
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    width: "100%",
+    marginBottom: "16px"
+  }}
+>
+  <h4
     style={{
-      display: "flex",
-      justifyContent: "space-between",
-      alignItems: "center",
-      marginBottom: "12px"
+      margin: 0,
+      fontSize: "18px",
+      fontWeight: "700",
+      color: "#111827"
     }}
   >
+    {round.title || `Round ${index + 1}`}
+  </h4>
 
-    <h4
-      style={{
-        margin: 0,
-        fontSize: "18px",
-        color: "#111827"
-      }}
-    >
-      {round.title}
-    </h4>
+  <div
+    style={{
+      display: "flex",
+      alignItems: "center",
+      gap: "10px"
+    }}
+  >
+   <button
+  onClick={() => handleEditRound(index)}
+  style={{
+    padding: "6px 12px",
+    border: "none",
+    borderRadius: "8px",
+    background: "#2563eb",
+    color: "white",
+    cursor: "pointer"
+  }}
+>
+  Edit
+</button>
 
     <span
       style={{
         backgroundColor: getStepColor(),
         color: "#fff",
         padding: "6px 12px",
-        borderRadius: "20px",
+        borderRadius: "999px",
         fontSize: "12px",
         fontWeight: "600"
       }}
     >
       {round.status}
     </span>
-
   </div>
+</div>
 
   {/* DATE */}
 
@@ -381,7 +407,7 @@ const saveRound = async () => {
     >
       Feedback / Notes
     </p>
-
+ 
     <p
       style={{
         marginTop: "5px",
@@ -395,7 +421,20 @@ const saveRound = async () => {
         : "No feedback added yet"
       }
     </p>
-
+           <button
+  onClick={() => addToCalendar(round)}
+  style={{
+    marginTop: "12px",
+    padding: "8px 14px",
+    borderRadius: "8px",
+    border: "none",
+    background: "#111",
+    color: "#fff",
+    cursor: "pointer"
+  }}
+>
+  Add to Google Calendar
+</button>
   </div>
 
 </div>
@@ -406,7 +445,98 @@ const saveRound = async () => {
   }
 
 </div>
+{
+  showRoundForm && (
+    <div className="modal-overlay">
 
+      <div className="modal-box">
+
+        <h2>
+          {
+            editingRoundIndex !== null
+              ? "Edit Round"
+              : "Add Round"
+          }
+        </h2>
+
+        <input
+          type="text"
+          placeholder="Round Title"
+          value={newRound.title}
+          onChange={(e) =>
+            setNewRound({
+              ...newRound,
+              title: e.target.value
+            })
+          }
+        />
+
+        <select
+          value={newRound.status}
+          onChange={(e) =>
+            setNewRound({
+              ...newRound,
+              status: e.target.value
+            })
+          }
+        >
+          <option>Upcoming</option>
+          <option>Ongoing</option>
+          <option>Completed</option>
+        </select>
+
+        <input
+          type="datetime-local"
+          value={newRound.scheduledAt}
+          onChange={(e) =>
+            setNewRound({
+              ...newRound,
+              scheduledAt: e.target.value
+            })
+          }
+        />
+
+        <textarea
+          rows="4"
+          placeholder="Feedback"
+          value={newRound.feedback}
+          onChange={(e) =>
+            setNewRound({
+              ...newRound,
+              feedback: e.target.value
+            })
+          }
+        />
+
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            gap: "10px"
+          }}
+        >
+          <button
+            className="delete-btn"
+            onClick={() =>
+              setShowRoundForm(false)
+            }
+          >
+            Cancel
+          </button>
+
+          <button
+            className="action-btn"
+            onClick={saveRound}
+          >
+            Save
+          </button>
+
+        </div>
+
+      </div>
+    </div>
+  )
+}
       </div>
 
       {/* ACTION BUTTONS */}
@@ -432,19 +562,7 @@ const saveRound = async () => {
 >
   + Add Round
 </button>
-        <button
-          style={{
-            padding: "10px 16px",
-            border: "none",
-            borderRadius: "8px",
-            backgroundColor: "#2563eb",
-            color: "#fff",
-            cursor: "pointer",
-            fontWeight: "600"
-          }}
-        >
-          Edit
-        </button>
+      
 
         <button
           style={{

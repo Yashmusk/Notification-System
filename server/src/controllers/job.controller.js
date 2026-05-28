@@ -1,5 +1,6 @@
 const Job = require('../models/job.model');
-
+const reminderQueue =
+  require("../queues/reminder.queue");
 
 exports.createJob = async (req, res) => {
   try {
@@ -9,7 +10,8 @@ exports.createJob = async (req, res) => {
       notes,
       rounds
     } = req.body;
-
+    console.log(req.body);
+console.log("Rounds:", rounds);
     const job = await Job.create({
       user: req.user.id,
       company,
@@ -19,10 +21,48 @@ exports.createJob = async (req, res) => {
       rounds: rounds.map((round) => ({
         title: round.title,
         status: round.status,
-        scheduledAt: round.scheduledAt,
+       scheduledAt:
+  round.scheduledAt || interviewDate,
         feedback: round.feedback
       }))
     });
+    for (const round of rounds) {
+
+  if (round.scheduledAt) {
+
+const interviewTime =
+  new Date(
+    round.scheduledAt || interviewDate
+  );
+
+    const reminderTime =
+      new Date(
+        interviewTime.getTime() -
+       1 * 60 * 1000
+      );
+
+    const delay =
+      reminderTime.getTime() -
+      Date.now();
+
+    if (delay > 0) {
+
+      await reminderQueue.add(
+        "send-email-reminder",
+        {
+          company,
+          role,
+          roundTitle: round.title,
+          scheduledAt:
+            round.scheduledAt
+        },
+        {
+          delay
+        }
+      );
+    }
+  }
+}
 
     res.status(201).json(job);
 

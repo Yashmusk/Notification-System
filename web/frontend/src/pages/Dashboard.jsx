@@ -5,6 +5,7 @@ import {
 } from "../services/job.services.js";
 import AddJobForm from "../components/AddJobForm";
 import JobCard from "../components/JobCard.jsx";
+import "./Dashboard.css"
 const Dashboard = () => {
 
   const [jobs, setJobs] = useState([]);
@@ -163,29 +164,74 @@ const stats = getStats(jobs);
       <hr />
       <AddJobForm />
       <hr/>
-      {
-        jobs.length === 0
-        ? (
-          <p>No jobs found</p>
-        )
-        : (
-          jobs
-  .filter((job) =>
-    job.company
-      .toLowerCase()
-      .includes(
-        search.toLowerCase()
-      )
-  ).map((job) => (
+{
+  jobs
+    .filter((job) =>
+      job.company
+        .toLowerCase()
+        .includes(search.toLowerCase())
+    )
+    .map((job) => (
+      <div
+        key={job._id}
+        style={{
+          marginBottom: "48px",
+          paddingBottom: "32px",
+          borderBottom: "2px solid #e5e7eb"
+        }}
+      >
 
-           <JobCard
-  key={job._id}
-  job={job}
-   fetchJobs={fetchJobs}
-/>
-          ))
-        )
-      }
+        {/* Company Heading */}
+
+        <div
+          style={{
+            marginBottom: "20px"
+          }}
+        >
+
+          <p
+            style={{
+              fontSize: "12px",
+              color: "#6b7280",
+              textTransform: "uppercase",
+              letterSpacing: "1px",
+              marginBottom: "6px"
+            }}
+          >
+            Company Name
+          </p>
+
+          <h2
+            style={{
+              margin: 0,
+              fontSize: "30px",
+              fontWeight: "700",
+              color: "#111111"
+            }}
+          >
+            {job.company}
+          </h2>
+
+          <p
+            style={{
+              marginTop: "6px",
+              color: "#6b7280",
+              fontSize: "16px"
+            }}
+          >
+            {job.role}
+          </p>
+
+        </div>
+
+        <JobCard
+          job={job}
+          fetchJobs={fetchJobs}
+        />
+
+      </div>
+    ))
+}
 
     </div>
   );
