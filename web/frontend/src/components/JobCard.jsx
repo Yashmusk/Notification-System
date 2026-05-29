@@ -48,6 +48,24 @@ const saveRound = async () => {
     console.log(error);
   }
 };
+const handleDeleteRound = async (index) => {
+  try {
+    const updatedRounds =
+      job.rounds.filter(
+        (_, i) => i !== index
+      );
+
+    await updateJob(job._id, {
+      ...job,
+      rounds: updatedRounds
+    });
+
+    fetchJobs();
+
+  } catch (error) {
+    console.log(error);
+  }
+};
 const addToCalendar = (round) => {
 
   if (!round.scheduledAt) {
@@ -343,7 +361,19 @@ const handleEditRound = (index) => {
 >
   Edit
 </button>
-
+  <button
+    onClick={() => handleDeleteRound(index)}
+    style={{
+      padding: "6px 12px",
+      border: "none",
+      borderRadius: "8px",
+      background: "#dc2626",
+      color: "white",
+      cursor: "pointer"
+    }}
+  >
+    Delete
+  </button>
     <span
       style={{
         backgroundColor: getStepColor(),

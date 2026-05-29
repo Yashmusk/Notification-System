@@ -14,49 +14,50 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 30px;
+  margin-bottom: 32px;
 }
 
-.dashboard-title h1 {
+.dashboard-header h1 {
   margin: 0;
-  font-size: 38px;
+  font-size: 40px;
   font-weight: 700;
   color: #111827;
 }
 
-.dashboard-title p {
-  color: #6b7280;
+.dashboard-header p {
   margin-top: 8px;
+  color: #6b7280;
+  font-size: 16px;
 }
 
 .logout-btn {
-  background: #111827;
+  background: black;
   color: white;
   border: none;
   padding: 12px 20px;
   border-radius: 12px;
   cursor: pointer;
+  font-size: 14px;
 }
 
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: 20px;
+  gap: 18px;
   margin-bottom: 28px;
 }
 
 .stat-card {
-  padding: 28px;
-  border-radius: 18px;
   background: white;
-  color: #111827;
-  font-weight: 600;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+  border-radius: 18px;
+  padding: 28px;
+  text-align: center;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.05);
 }
 
 .stat-card h3 {
-  font-size: 34px;
   margin: 0;
+  font-size: 34px;
   color: #111827;
 }
 
@@ -65,29 +66,48 @@ body {
   color: #6b7280;
 }
 
-.search-box {
+.search-row {
+  margin-bottom: 28px;
+}
+
+.search-row input {
   width: 100%;
   padding: 14px 18px;
   border-radius: 14px;
-  border: none;
+  border: 1px solid #e5e7eb;
   font-size: 15px;
-  background: white;
-  box-shadow: 0 4px 14px rgba(0,0,0,0.06);
-  margin-bottom: 30px;
 }
 
-.add-job-btn {
-  background: linear-gradient(
-    135deg,
-    #2563eb,
-    #1d4ed8
-  );
-  color: white;
-  border: none;
-  padding: 14px 24px;
-  border-radius: 14px;
-  font-size: 15px;
-  font-weight: 600;
-  cursor: pointer;
-  margin-bottom: 30px;
+.add-job-wrapper {
+  background: white;
+  padding: 32px;
+  border-radius: 18px;
+  margin-bottom: 32px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.04);
+}
+
+.job-section {
+  background: white;
+  padding: 28px;
+  border-radius: 18px;
+  margin-bottom: 28px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.04);
+}
+
+.company-label {
+  font-size: 12px;
+  text-transform: uppercase;
+  color: #9ca3af;
+  letter-spacing: 1px;
+}
+
+.company-header h2 {
+  margin: 6px 0;
+  font-size: 28px;
+  color: #111827;
+}
+
+.role-text {
+  color: #6b7280;
+  margin-bottom: 18px;
 }

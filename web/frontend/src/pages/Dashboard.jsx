@@ -1,238 +1,176 @@
 import { useEffect, useState } from "react";
-
-import {
-  getJobs
-} from "../services/job.services.js";
+import { getJobs } from "../services/job.services.js";
 import AddJobForm from "../components/AddJobForm";
 import JobCard from "../components/JobCard.jsx";
-import "./Dashboard.css"
+import "./Dashboard.css";
+
 const Dashboard = () => {
-
   const [jobs, setJobs] = useState([]);
-  const [search, setSearch] =
-  useState("");
+  const [search, setSearch] = useState("");
+
   useEffect(() => {
-
     fetchJobs();
-
   }, []);
 
-const getStats = (jobs) => {
-  let upcoming = 0;
-  let ongoing = 0;
-  let completed = 0;
-  let offers = 0;
-
-  jobs.forEach((job) => {
-    job.rounds?.forEach((round) => {
-      if (round.status === "Upcoming") upcoming++;
-
-      if (round.status === "Ongoing") ongoing++;
-
-      if (round.status === "Completed") completed++;
-    });
-
-    const allRoundsCompleted =
-      job.rounds?.length > 0 &&
-      job.rounds.every(
-        (round) =>
-          round.status === "Completed"
-      );
-
-    if (
-      allRoundsCompleted &&
-      job.status !== "Rejected"
-    ) {
-      offers++;
-    }
-  });
-
-  return {
-    total: jobs.length,
-    upcoming,
-    ongoing,
-    completed,
-    offers,
-
-    rejected: jobs.filter(
-      (job) =>
-        job.status === "Rejected"
-    ).length
-  };
-};
-const stats = getStats(jobs);
   const fetchJobs = async () => {
-
     try {
-
       const data = await getJobs();
-
-      console.log(data);
-
       setJobs(data);
-
     } catch (error) {
-
       console.log(error);
     }
   };
 
+  const getStats = (jobs) => {
+    let upcoming = 0;
+    let ongoing = 0;
+    let completed = 0;
+    let offers = 0;
+
+    jobs.forEach((job) => {
+      job.rounds?.forEach((round) => {
+        if (round.status === "Upcoming") upcoming++;
+        if (round.status === "Ongoing") ongoing++;
+        if (round.status === "Completed") completed++;
+      });
+
+      const allRoundsCompleted =
+        job.rounds?.length > 0 &&
+        job.rounds.every(
+          (round) => round.status === "Completed"
+        );
+
+      if (
+        allRoundsCompleted &&
+        job.status !== "Rejected"
+      ) {
+        offers++;
+      }
+    });
+
+    return {
+      total: jobs.length,
+      upcoming,
+      ongoing,
+      completed,
+      offers,
+      rejected: jobs.filter(
+        (job) => job.status === "Rejected"
+      ).length
+    };
+  };
+
+  const stats = getStats(jobs);
+
   const handleLogout = () => {
-
     localStorage.removeItem("token");
-
     window.location.href = "/login";
   };
 
   return (
-    <div>
+    <div className="dashboard-container">
 
-      <div
-  style={{
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: "30px"
-  }}
->
-
-  <h1>
-    Job Tracker Dashboard
-  </h1>
-
-  <button onClick={handleLogout}>
-    Logout
-  </button>
-
-</div>
-
-<div
-  style={{
-    display: "grid",
-    gridTemplateColumns:
-      "repeat(4, 1fr)",
-    gap: "20px",
-    marginBottom: "30px"
-  }}
->
-
-  <div className="stat-card">
-    <h3>{stats.total}</h3>
-    <p>Total Jobs</p>
-  </div>
-  <div className="stat-card">
-    <h3>{stats.ongoing}</h3>
-    <p>Ongoing</p>
-  </div>
-
-  <div className="stat-card">
-    <h3>{stats.upcoming}</h3>
-    <p>Upcoming</p>
-  </div>
-
-  <div className="stat-card">
-    <h3>{stats.offers}</h3>
-    <p>Offers</p>
-  </div>
-
-  <div className="stat-card">
-    <h3>{stats.rejected}</h3>
-    <p>Rejected</p>
-  </div>
-
-</div>
-<input
-  type="text"
-  placeholder="Search by company..."
-  value={search}
-  onChange={(e) =>
-    setSearch(e.target.value)
-  }
-  style={{
-    width: "100%",
-    padding: "12px",
-    borderRadius: "10px",
-    border: "1px solid #ddd",
-    marginBottom: "25px"
-  }}
-/>
-
-      <button onClick={handleLogout}>
-        Logout
-      </button>
-
-      <hr />
-      <AddJobForm />
-      <hr/>
-{
-  jobs
-    .filter((job) =>
-      job.company
-        .toLowerCase()
-        .includes(search.toLowerCase())
-    )
-    .map((job) => (
-      <div
-        key={job._id}
-        style={{
-          marginBottom: "48px",
-          paddingBottom: "32px",
-          borderBottom: "2px solid #e5e7eb"
-        }}
-      >
-
-        {/* Company Heading */}
-
-        <div
-          style={{
-            marginBottom: "20px"
-          }}
-        >
-
-          <p
-            style={{
-              fontSize: "12px",
-              color: "#6b7280",
-              textTransform: "uppercase",
-              letterSpacing: "1px",
-              marginBottom: "6px"
-            }}
-          >
-            Company Name
+      {/* Header */}
+      <div className="dashboard-header">
+        <div>
+          <h1>Job Tracker</h1>
+          <p>
+            Track interviews, rounds & reminders in one place
           </p>
-
-          <h2
-            style={{
-              margin: 0,
-              fontSize: "30px",
-              fontWeight: "700",
-              color: "#111111"
-            }}
-          >
-            {job.company}
-          </h2>
-
-          <p
-            style={{
-              marginTop: "6px",
-              color: "#6b7280",
-              fontSize: "16px"
-            }}
-          >
-            {job.role}
-          </p>
-
         </div>
 
-        <JobCard
-          job={job}
-          fetchJobs={fetchJobs}
-        />
+        <button
+          className="logout-btn"
+          onClick={handleLogout}
+        >
+          Logout
+        </button>
+      </div>
+
+      {/* Stats */}
+      <div className="stats-grid">
+
+        <div className="stat-card">
+          <h3>{stats.total}</h3>
+          <p>Total Jobs</p>
+        </div>
+
+        <div className="stat-card">
+          <h3>{stats.ongoing}</h3>
+          <p>Ongoing</p>
+        </div>
+
+        <div className="stat-card">
+          <h3>{stats.upcoming}</h3>
+          <p>Upcoming</p>
+        </div>
+
+        <div className="stat-card">
+          <h3>{stats.offers}</h3>
+          <p>Offers</p>
+        </div>
+
+        <div className="stat-card">
+          <h3>{stats.rejected}</h3>
+          <p>Rejected</p>
+        </div>
 
       </div>
-    ))
-}
 
+      {/* Search */}
+      <div className="search-row">
+        <input
+          type="text"
+          placeholder="Search by company..."
+          value={search}
+          onChange={(e) =>
+            setSearch(e.target.value)
+          }
+        />
+      </div>
+
+      {/* Add Job Form */}
+      <div className="add-job-wrapper">
+        <AddJobForm fetchJobs={fetchJobs} />
+      </div>
+
+      {/* Job Cards */}
+      <div className="jobs-list">
+        {jobs
+          .filter((job) =>
+            job.company
+              .toLowerCase()
+              .includes(
+                search.toLowerCase()
+              )
+          )
+          .map((job) => (
+            <div
+              key={job._id}
+              className="job-section"
+            >
+              <div className="company-header">
+
+                <p className="company-label">
+                  Company Name
+                </p>
+
+                <h2>
+                  {job.company}
+                </h2>
+
+                <p className="role-text">
+                  {job.role}
+                </p>
+              </div>
+
+              <JobCard
+                job={job}
+                fetchJobs={fetchJobs}
+              />
+            </div>
+          ))}
+      </div>
     </div>
   );
 };
