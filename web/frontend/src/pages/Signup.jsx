@@ -1,10 +1,17 @@
 import { useState } from "react";
+import { signupUser } from "../services/auth.service";
+import { Link, useNavigate } from "react-router-dom";
 
 import {
-  signupUser
-} from "../services/auth.service";
+  Box,
+  Paper,
+  Typography,
+  TextField,
+  Button
+} from "@mui/material";
 
 const Signup = () => {
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     name: "",
@@ -13,7 +20,6 @@ const Signup = () => {
   });
 
   const handleChange = (e) => {
-
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
@@ -21,66 +27,120 @@ const Signup = () => {
   };
 
   const handleSubmit = async (e) => {
-
     e.preventDefault();
 
     try {
-
-      const data = await signupUser(formData);
-
-      console.log(data);
-
+      await signupUser(formData);
       alert("Signup successful");
-
+      navigate("/login");
     } catch (error) {
-
       console.log(error);
-
       alert("Signup failed");
     }
   };
 
   return (
-    <div>
+    <Box
+      sx={{
+        minHeight: "100vh",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        bgcolor: "#f5f5f5"
+      }}
+    >
+      <Paper
+        elevation={6}
+        sx={{
+          width: 420,
+          p: 5,
+          borderRadius: 4
+        }}
+      >
+        <Typography
+          variant="h4"
+          fontWeight="bold"
+          mb={1}
+        >
+          Create Account
+        </Typography>
 
-      <h1>Signup</h1>
+        <Typography
+          color="text.secondary"
+          mb={4}
+        >
+          Start tracking your job applications
+        </Typography>
 
-      <form onSubmit={handleSubmit}>
+        <Box
+          component="form"
+          onSubmit={handleSubmit}
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 2
+          }}
+        >
+          <TextField
+            name="name"
+            label="Full Name"
+            fullWidth
+            onChange={handleChange}
+          />
 
-        <input
-          type="text"
-          name="name"
-          placeholder="Enter name"
-          onChange={handleChange}
-        />
+          <TextField
+            name="email"
+            label="Email"
+            type="email"
+            fullWidth
+            onChange={handleChange}
+          />
 
-        <br />
+          <TextField
+            name="password"
+            label="Password"
+            type="password"
+            fullWidth
+            onChange={handleChange}
+          />
 
-        <input
-          type="email"
-          name="email"
-          placeholder="Enter email"
-          onChange={handleChange}
-        />
+          <Button
+            type="submit"
+            variant="contained"
+            fullWidth
+            sx={{
+              mt: 2,
+              py: 1.5,
+              bgcolor: "black",
+              "&:hover": {
+                bgcolor: "#222"
+              },
+              borderRadius: "12px"
+            }}
+          >
+            Signup
+          </Button>
+        </Box>
 
-        <br />
-
-        <input
-          type="password"
-          name="password"
-          placeholder="Enter password"
-          onChange={handleChange}
-        />
-
-        <br />
-
-        <button type="submit">
-          Signup
-        </button>
-
-      </form>
-
-    </div>
+        <Typography
+          textAlign="center"
+          mt={3}
+          fontSize={14}
+        >
+          Already have an account?{" "}
+          <Link
+            to="/login"
+            style={{
+              color: "black",
+              fontWeight: 600,
+              textDecoration: "none"
+            }}
+          >
+            Login
+          </Link>
+        </Typography>
+      </Paper>
+    </Box>
   );
 };
 
